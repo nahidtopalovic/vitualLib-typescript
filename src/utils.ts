@@ -1,4 +1,4 @@
-import { User, UserForToken } from './types';
+import { Book, User, UserForToken } from './types';
 
 const isString = (text: unknown): text is string => {
   return typeof text === 'string' || text instanceof String;
@@ -29,6 +29,8 @@ const toNewUserEntry = (object: any): User => {
   return newUser;
 };
 
+// toUserForToken
+
 const isNumber = (num: unknown): num is number => {
   return typeof num === 'number';
 };
@@ -49,4 +51,46 @@ const toUserForToken = (email: unknown, id: unknown): UserForToken => {
   return userForToken;
 };
 
-export { toNewUserEntry, toUserForToken };
+// toNewBook
+
+const parseTitle = (title: unknown): string => {
+  if (!title || !isString(title)) {
+    throw new Error('Incorrect or missing title');
+  }
+  return title;
+};
+
+const parseAuthor = (author: unknown): string => {
+  if (!author || !isString(author)) {
+    throw new Error('Incorrect or missing author');
+  }
+  return author;
+};
+
+const parseEdition = (edition: unknown): string => {
+  if (!edition || !isString(edition)) {
+    throw new Error('Incorrect or missing edition');
+  }
+  return edition;
+};
+
+const parseYear = (year_written: unknown): number => {
+  if (!year_written || !isNumber(year_written)) {
+    throw new Error('Incorrect or missing id: ' + year_written);
+  }
+  return year_written;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const toNewBook = (object: any): Book => {
+  const newBook: Book = {
+    title: parseTitle(object.title),
+    author: parseAuthor(object.author),
+    edition: parseEdition(object.edition),
+    year_written: parseYear(object.year_written),
+  };
+
+  return newBook;
+};
+
+export { toNewUserEntry, toUserForToken, toNewBook };

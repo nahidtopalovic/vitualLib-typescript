@@ -14,13 +14,15 @@ export const addToCollection = async (req: Request, res: Response) => {
     }
 
     if (!req.token) {
-      return res.status(403).json({ error: 'token missing' });
+      res.status(403).json({ error: 'token missing' });
+      return;
     }
 
     const decodedToken = <MyToken>verify(req.token, secret);
 
     if (!decodedToken.id) {
-      return res.status(403).json({ error: 'invalid token' });
+      res.status(403).json({ error: 'invalid token' });
+      return;
     }
 
     const bookInLibrary = Boolean(
@@ -34,6 +36,7 @@ export const addToCollection = async (req: Request, res: Response) => {
 
     if (!bookInLibrary) {
       res.status(404).json({ error: 'Invalid book id' });
+      return;
     }
 
     const isBookInCollection = Boolean(
@@ -47,22 +50,25 @@ export const addToCollection = async (req: Request, res: Response) => {
 
     if (isBookInCollection) {
       res.status(400).json({ error: 'Book is already in the collection' });
+      return;
     }
 
     const response = await pool.query(
       'INSERT INTO "USER_COLLECTIONS" (BOOK_ID, USER_ID) VALUES ($1, $2) RETURNING *',
       [bookId, decodedToken.id]
     );
-    return res.status(200).json(response.rows[0]);
+    res.status(201).json(response.rows[0]);
+    return;
   } catch (error) {
     console.log(error);
-    return res.json(error);
+    res.status(500).json(error);
+    return;
   }
 };
 
 export const removeFromCollection = async (req: Request, res: Response) => {
   try {
-    const collectionId = req.params.id;
+    const collectionId = Number(req.params.id);
 
     const secret = process.env.SECRET;
 
@@ -71,19 +77,21 @@ export const removeFromCollection = async (req: Request, res: Response) => {
     }
 
     if (!req.token) {
-      return res.status(403).json({ error: 'token missing' });
+      res.status(403).json({ error: 'token missing' });
+      return;
     }
 
     const decodedToken = <MyToken>verify(req.token, secret);
 
     if (!decodedToken.id) {
-      return res.status(403).json({ error: 'invalid token' });
+      res.status(403).json({ error: 'invalid token' });
+      return;
     }
 
     const isBookInCollection = Boolean(
       (
         await pool.query(
-          'SELECT BOOK_ID FROM "USER_COLLECTIONS" WHERE BOOK_ID = $1 AND USER_ID = $2',
+          'SELECT BOOK_ID FROM "USER_COLLECTIONS" WHERE UC_ID = $1 AND user_id = $2',
           [collectionId, decodedToken.id]
         )
       ).rowCount
@@ -91,15 +99,18 @@ export const removeFromCollection = async (req: Request, res: Response) => {
 
     if (!isBookInCollection) {
       res.status(400).json({ error: 'Book is not in the collection' });
+      return;
     }
 
     const response = await pool.query(
-      'DELTE FROM "USER_COLLECTIONS" WHERE UC_ID = $1',
+      'DELETE FROM "USER_COLLECTIONS" WHERE UC_ID = $1',
       [collectionId]
     );
-    return res.status(200).json(response.rows[0]);
+    res.status(200).json(response.rows[0]);
+    return;
   } catch (error) {
     console.log(error);
-    return res.json(error);
+    res.status(500).json(error);
+    return;
   }
 };

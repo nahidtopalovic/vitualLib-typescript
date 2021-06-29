@@ -20,7 +20,8 @@ export const login = async (req: Request, res: Response) => {
       : false;
 
     if (!userInDb.rowCount || !passwordCorrect) {
-      return res.status(401).json({ error: 'invalid email or password' });
+      res.status(401).json({ error: 'invalid email or password' });
+      return;
     }
 
     const userForToken: UserForToken = toUserForToken(
@@ -34,9 +35,11 @@ export const login = async (req: Request, res: Response) => {
     }
     const token = jwt.sign(userForToken, secret);
 
-    return res.status(200).send({ token, email: user.email });
+    res.status(200).send({ token, email: user.email });
+    return;
   } catch (error) {
     console.log(error);
-    return res.json(error);
+    res.status(500).json(error);
+    return;
   }
 };

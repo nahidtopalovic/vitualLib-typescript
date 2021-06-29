@@ -16,7 +16,8 @@ export const signUp = async (req: Request, res: Response) => {
       newUser.password.length <= 6 ||
       !newUser.email.includes('@')
     ) {
-      return res.status(400).json({ error: 'invalid username or password' });
+      res.status(400).json({ error: 'invalid username or password' });
+      return;
     }
 
     // TODO: store this in env
@@ -32,7 +33,8 @@ export const signUp = async (req: Request, res: Response) => {
     );
 
     if (isEmailUsed) {
-      return res.json('Email already in use!');
+      res.json('Email already in use!');
+      return;
     }
 
     const usersInDb = await pool.query('SELECT USER_ID FROM "USERS"');
@@ -42,9 +44,11 @@ export const signUp = async (req: Request, res: Response) => {
       'INSERT INTO "USERS"(EMAIL, PASSWORD, IS_ADMIN) VALUES ($1, $2, $3) RETURNING *',
       [newUser.email, passwordHash, asAdmin]
     );
-    return res.json(dbResponse.rows);
+    res.status(201).json(dbResponse.rows);
+    return;
   } catch (error) {
     console.log(error);
-    return res.json(error);
+    res.status(500).json(error);
+    return;
   }
 };
