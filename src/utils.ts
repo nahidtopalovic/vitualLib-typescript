@@ -48,4 +48,5 @@ const toUserForToken = (email: unknown, id: unknown): UserForToken => {
 
   return userForToken;
 };
+
 export { toNewUserEntry, toUserForToken };

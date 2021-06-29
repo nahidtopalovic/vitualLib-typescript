@@ -15,3 +15,8 @@ export interface UserForToken {
   email: string,
   id: number
 }
+
+export interface MyToken {
+  email: string;
+  id: number;
+}
