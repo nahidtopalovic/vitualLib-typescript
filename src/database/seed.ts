@@ -3,7 +3,9 @@ import { pool } from './index';
 
 export const seedDatabase = async (): Promise<void> => {
   try {
-    await pool.query('DROP TABLE IF EXISTS "BOOKS"');
+    await pool.query('DROP TABLE IF EXISTS "BOOKS" CASCADE');
+    await pool.query('DROP TABLE IF EXISTS "USERS" CASCADE');
+    await pool.query('DROP TABLE IF EXISTS "USER_COLLECTIONS" CASCADE');
     await pool.query(
       'CREATE TABLE "BOOKS" (BOOK_ID SERIAL PRIMARY KEY, TITLE VARCHAR(100), AUTHOR VARCHAR(100), YEAR INTEGER, EDITION VARCHAR(50))'
     );

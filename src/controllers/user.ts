@@ -20,8 +20,11 @@ export const signUp = async (req: Request, res: Response) => {
       return;
     }
 
-    // TODO: store this in env
-    const saltRounds = 10;
+    const saltRounds = process.env.SALTROUNDS;
+    if (!saltRounds) {
+      throw new Error('Environment variable not set');
+    }
+
     const passwordHash = await bcrypt.hash(newUser.password, saltRounds);
 
     const isEmailUsed = Boolean(
